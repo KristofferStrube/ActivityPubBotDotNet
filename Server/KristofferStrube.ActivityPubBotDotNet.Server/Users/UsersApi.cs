@@ -16,6 +16,7 @@ public static class UsersApi
         group.MapGet("/{userId}", Index);
         group.MapPost("/{userId}/inbox", Inbox);
         group.MapGet("/{userId}/followers", Followers);
+        group.MapGet("/{userId}/following", Following);
 
         return group;
     }
