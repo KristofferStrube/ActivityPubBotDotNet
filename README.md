@@ -36,7 +36,7 @@ dotnet run
 # Goals
 ## Server Interaction Goals
 - [x] [Accept](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-accept) [Follow](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-follow) activities sent to [Person](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-person).
-- [ ] Remove subscription when someone [Undo](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-undo) a [Follow](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-follow) activity.
+- [x] Remove subscription when someone [Undo](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-undo) a [Follow](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-follow) activity.
 - [x] Persist [Person](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-person) information in EF Core.
 - [ ] Validate message [signing](https://blog.joinmastodon.org/2018/07/how-to-make-friends-and-verify-requests/).
 - [x] Dynamic information of [Person](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-person).
