@@ -1,6 +1,7 @@
 ﻿using KristofferStrube.ActivityStreams;
 using System.Globalization;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using static System.Text.Json.JsonSerializer;
@@ -35,7 +36,6 @@ public class ActivityPubService
 
         // Prepare a string to sign.
         string stringToSign = $"date: {date}\ndigest: {contentHash}";
-        Console.WriteLine(stringToSign);
         // Compute the signature.
         string signature = ComputeSignature(stringToSign);
         // Concatenate the string, which will be used in the authorization header.
@@ -53,20 +53,37 @@ public class ActivityPubService
         return await httpClient.SendAsync(request);
     }
 
-    public async Task<Uri?> GetInboxUriAsync(IObjectOrLink actor)
+    public async Task<Uri?> GetInboxUriAsync(IObjectOrLink person)
     {
-        if (actor is ILink { Href: Uri href })
+        if (person is ILink { Href: Uri href })
         {
-            Console.WriteLine(await httpClient.GetStringAsync(href));
-            IObjectOrLink? obj = await httpClient.GetFromJsonAsync<IObjectOrLink>(href);
+            var response = await httpClient.GetAsync(href);
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+            IObjectOrLink? obj = await response.Content.ReadFromJsonAsync<IObjectOrLink>();
             if (obj is Person { Inbox.Href: Uri inboxHref })
             {
                 return inboxHref;
             }
         }
-        else if (actor is Actor actorObject)
+        else if (person is Actor actorObject)
         {
             return actorObject.Inbox?.Href;
+        }
+        return null;
+    }
+
+    public string? GetPersonId(IObjectOrLink? person)
+    {
+        if (person is ILink { Href: Uri href})
+        {
+            return href.ToString();
+        }
+        else if (person is Person)
+        {
+            return person.Id;
         }
         return null;
     }
