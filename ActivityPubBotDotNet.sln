@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KristofferStrube.ActivityPubBotDotNet.Server", "Server\KristofferStrube.ActivityPubBotDotNet.Server\KristofferStrube.ActivityPubBotDotNet.Server.csproj", "{A6C9FFC5-5BA4-43CF-8E10-C8A9BB35F1FF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KristoffferStrube.ActivityPubBotDotNet.Client", "Client\KristoffferStrube.ActivityPubBotDotNet.Client\KristoffferStrube.ActivityPubBotDotNet.Client.csproj", "{ECB1B4AC-00DB-4560-AA99-F6A81E28E93C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A6C9FFC5-5BA4-43CF-8E10-C8A9BB35F1FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6C9FFC5-5BA4-43CF-8E10-C8A9BB35F1FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6C9FFC5-5BA4-43CF-8E10-C8A9BB35F1FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6C9FFC5-5BA4-43CF-8E10-C8A9BB35F1FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECB1B4AC-00DB-4560-AA99-F6A81E28E93C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECB1B4AC-00DB-4560-AA99-F6A81E28E93C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECB1B4AC-00DB-4560-AA99-F6A81E28E93C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECB1B4AC-00DB-4560-AA99-F6A81E28E93C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {85F35453-A54C-4436-A503-74D84D76BB54}
+	EndGlobalSection
+EndGlobal
