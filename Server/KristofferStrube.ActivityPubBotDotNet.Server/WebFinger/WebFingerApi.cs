@@ -21,22 +21,22 @@ public static class WebFingerApi
 
     public static Results<BadRequest<string>, Ok<WebFingerResource>> Index(string resource, IConfiguration configuration, ActivityPubDbContext dbContext)
     {
-        if (!resource.Contains(":"))
+        if (!resource.Contains(':'))
         {
             return TypedResults.BadRequest("Malformed resource querystring missing ':'.");
         }
-        if (!resource.Split(":")[1].Contains("@"))
+        if (!resource.Split(':')[1].Contains('@'))
         {
             return TypedResults.BadRequest("Malformed resource querystring missing '@'.");
         }
 
-        var userId = resource.Split(":")[1].Split("@")[0];
+        string userId = resource.Split(":")[1].Split("@")[0];
         if (userId is not "bot")
         {
             return TypedResults.BadRequest("User was not 'bot'.");
         }
 
-        var user = dbContext.Users.Find($"{configuration["HostUrls:Server"]}/Users/{userId}");
+        UserInfo? user = dbContext.Users.Find($"{configuration["HostUrls:Server"]}/Users/{userId}");
         if (user is null)
         {
             return TypedResults.BadRequest("User could not be found.");
@@ -113,11 +113,11 @@ public static class WebFingerApi
                 switch (undo.Object?.First())
                 {
                     case Follow follow:
-                        if (activityPub.GetPersonId(follow.Actor?.First()) is not string actorId || follow.Object?.First() is not ILink { Href : Uri objectUri })
+                        if (activityPub.GetPersonId(follow.Actor?.First()) is not string actorId || follow.Object?.First() is not ILink { Href: Uri objectUri })
                         {
                             return TypedResults.BadRequest($"Could not Undo Follow either because the actor was not a Link or did not have an id or because the Object was not a Link.");
                         }
-                        var followRelation = dbContext.FollowRelations.Find(actorId, objectUri.ToString());
+                        FollowRelation? followRelation = dbContext.FollowRelations.Find(actorId, objectUri.ToString());
                         if (followRelation is null)
                         {
                             return TypedResults.BadRequest($"Could not Undo Follow because the Actor was not following the Object");

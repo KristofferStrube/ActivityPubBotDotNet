@@ -28,7 +28,7 @@ public static class UsersApi
             return TypedResults.BadRequest("User was not 'bot'.");
         }
 
-        var user = dbContext.Users.Find($"{configuration["HostUrls:Server"]}/Users/{userId}");
+        UserInfo? user = dbContext.Users.Find($"{configuration["HostUrls:Server"]}/Users/{userId}");
         if (user is null)
         {
             return TypedResults.BadRequest("User could not be found.");
@@ -140,11 +140,11 @@ public static class UsersApi
                 switch (undo.Object?.First())
                 {
                     case Follow follow:
-                        if (activityPub.GetPersonId(follow.Actor?.First()) is not string actorId || follow.Object?.First() is not ILink { Href : Uri objectUri })
+                        if (activityPub.GetPersonId(follow.Actor?.First()) is not string actorId || follow.Object?.First() is not ILink { Href: Uri objectUri })
                         {
                             return TypedResults.BadRequest($"Could not Undo Follow either because the actor was not a Link or did not have an id or because the Object was not a Link.");
                         }
-                        var followRelation = dbContext.FollowRelations.Find(actorId, objectUri.ToString());
+                        FollowRelation? followRelation = dbContext.FollowRelations.Find(actorId, objectUri.ToString());
                         if (followRelation is null)
                         {
                             return TypedResults.BadRequest($"Could not Undo Follow because the Actor was not following the Object.");

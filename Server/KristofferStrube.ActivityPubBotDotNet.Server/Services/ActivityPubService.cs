@@ -1,7 +1,6 @@
 ﻿using KristofferStrube.ActivityStreams;
 using System.Globalization;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using static System.Text.Json.JsonSerializer;
@@ -57,7 +56,7 @@ public class ActivityPubService
     {
         if (person is ILink { Href: Uri href })
         {
-            var response = await httpClient.GetAsync(href);
+            HttpResponseMessage response = await httpClient.GetAsync(href);
             if (!response.IsSuccessStatusCode)
             {
                 return null;
@@ -77,7 +76,7 @@ public class ActivityPubService
 
     public string? GetPersonId(IObjectOrLink? person)
     {
-        if (person is ILink { Href: Uri href})
+        if (person is ILink { Href: Uri href })
         {
             return href.ToString();
         }
