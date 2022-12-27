@@ -40,7 +40,7 @@ dotnet run
 - [x] Persist [Person](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-person) information in EF Core.
 - [ ] Validate message [signing](https://blog.joinmastodon.org/2018/07/how-to-make-friends-and-verify-requests/).
 - [x] Dynamic information of [Person](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-person).
-- [ ] Dynamic webfinger endpoint.
+- [x] Dynamic WebFinger endpoint.
 - [ ] Serve [Articles](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-article) of [Person](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-person).
 - [ ] Send [Create](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-create) Activity message when a new Article is created.
 - [ ] Send [Delete](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-delete) Activity message when [Person](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-person) information changes.

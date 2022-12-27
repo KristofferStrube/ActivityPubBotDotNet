@@ -1,4 +1,5 @@
-﻿using KristofferStrube.ActivityStreams;
+﻿using KristofferStrube.ActivityPubBotDotNet.Server.WebFinger;
+using KristofferStrube.ActivityStreams;
 using KristofferStrube.ActivityStreams.JsonLD;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -6,23 +7,30 @@ using static System.Text.Json.JsonSerializer;
 
 namespace KristofferStrube.ActivityPubBotDotNet.Server;
 
-public static class UsersApi
+public static class WebFingerApi
 {
-    public static RouteGroupBuilder MapUsers(this IEndpointRouteBuilder routes)
+    public static RouteGroupBuilder MapWebFingers(this IEndpointRouteBuilder routes)
     {
-        RouteGroupBuilder group = routes.MapGroup("/users");
-        group.WithTags("Users");
+        RouteGroupBuilder group = routes.MapGroup("/webfinger");
+        group.WithTags("WebFinger");
 
-        group.MapGet("/{userId}", Index);
-        group.MapPost("/{userId}/inbox", Inbox);
-        group.MapGet("/{userId}/followers", Followers);
-        group.MapGet("/{userId}/following", Following);
+        group.MapGet("/", Index);
 
         return group;
     }
 
-    public static Results<BadRequest<string>, Ok<IObject>> Index(string userId, IConfiguration configuration, ActivityPubDbContext dbContext)
+    public static Results<BadRequest<string>, Ok<WebFingerResource>> Index(string resource, IConfiguration configuration, ActivityPubDbContext dbContext)
     {
+        if (!resource.Contains(":"))
+        {
+            return TypedResults.BadRequest("Malformed resource querystring missing ':'.");
+        }
+        if (!resource.Split(":")[1].Contains("@"))
+        {
+            return TypedResults.BadRequest("Malformed resource querystring missing '@'.");
+        }
+
+        var userId = resource.Split(":")[1].Split("@")[0];
         if (userId is not "bot")
         {
             return TypedResults.BadRequest("User was not 'bot'.");
@@ -34,44 +42,9 @@ public static class UsersApi
             return TypedResults.BadRequest("User could not be found.");
         }
 
-        return TypedResults.Ok((IObject)new Person()
+        return TypedResults.Ok(new WebFingerResource(resource)
         {
-            JsonLDContext = new List<ReferenceTermDefinition>() { new(new("https://www.w3.org/ns/activitystreams")) },
-            Id = $"{configuration["HostUrls:Server"]}/Users/{userId}",
-            Type = new List<string>() { "Person" },
-            PreferredUsername = user.Name,
-            Inbox = new Link() { Href = new Uri($"{configuration["HostUrls:Server"]}/Users/{userId}/inbox") },
-            Outbox = new Link() { Href = new Uri($"{configuration["HostUrls:Server"]}/Users/{userId}/outbox") },
-            Followers = new Link() { Href = new Uri($"{configuration["HostUrls:Server"]}/Users/{userId}/followers") },
-            Following = new Link() { Href = new Uri($"{configuration["HostUrls:Server"]}/Users/{userId}/following") },
-            Published = new DateTime(2022, 11, 27),
-            Icon = new List<Image> {
-                    new() {
-                        Url = new Link[] { new() { Href = new("https://kristoffer-strube.dk/bot.png") } },
-                        MediaType = "image/png"
-                    }
-                },
-            Image = new List<Image> {
-                    new() {
-                        Url = new Link[] { new() { Href = new("https://kristoffer-strube.dk/bot_header.PNG") } },
-                        MediaType = "image/png"
-                    }
-                },
-            Summary = new string[] { "This is a ActivityPub bot written in .NET." },
-            ExtensionData = new()
-                {
-                    { "manuallyApprovesFollowers", SerializeToElement(true) },
-                    { "discoverable", SerializeToElement(true) },
-                    {
-                        "publicKey",
-                        SerializeToElement(new
-                        {
-                            id = $"{configuration["HostUrls:Server"]}/Users/{userId}#main-key",
-                            owner = $"{configuration["HostUrls:Server"]}/Users/{userId}",
-                            publicKeyPem = configuration["PEM:Public"]
-                        })
-                    }
-                }
+            Links = new() { new ResourceLink("self", "application/activity+json", new($"{configuration["HostUrls:Server"]}/Users/{userId}")) }
         });
     }
 
@@ -79,7 +52,7 @@ public static class UsersApi
     {
         if (userId is not "bot")
         {
-            return TypedResults.BadRequest("User was not 'bot'.");
+            return TypedResults.BadRequest("User was not 'bot'");
         }
 
         switch (obj)
@@ -114,7 +87,7 @@ public static class UsersApi
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    return TypedResults.BadRequest("Could not send Accept message.");
+                    return TypedResults.BadRequest("Could not send Accept message");
                 }
                 if (activityPub.GetPersonId(follow.Actor.First()) is not string followerId)
                 {
@@ -123,7 +96,7 @@ public static class UsersApi
 
                 if (dbContext.FollowRelations.Find(followerId, userId) is null)
                 {
-                    return TypedResults.Accepted("Accepted as the Actor already followed the Object.");
+                    return TypedResults.Accepted("Accepted as the Actor already followed the Object");
                 }
                 UserInfo dbUser = dbContext.Users.Find($"{configuration["HostUrls:Server"]}/Users/{userId}")!;
                 UserInfo? dbFollower = dbContext.Users.Find(followerId);
@@ -147,7 +120,7 @@ public static class UsersApi
                         var followRelation = dbContext.FollowRelations.Find(actorId, objectUri.ToString());
                         if (followRelation is null)
                         {
-                            return TypedResults.BadRequest($"Could not Undo Follow because the Actor was not following the Object.");
+                            return TypedResults.BadRequest($"Could not Undo Follow because the Actor was not following the Object");
                         }
                         dbContext.FollowRelations.Remove(followRelation);
                         dbContext.SaveChanges();
@@ -156,7 +129,7 @@ public static class UsersApi
                         return TypedResults.BadRequest(Serialize(undo.Object));
                 }
             default:
-                return TypedResults.BadRequest("The Object type was not supported.");
+                return TypedResults.BadRequest("The Object type was not supported");
         }
     }
 
@@ -164,7 +137,7 @@ public static class UsersApi
     {
         if (userId is not "bot")
         {
-            return TypedResults.BadRequest("User was not 'bot'.");
+            return TypedResults.BadRequest("User was not 'bot'");
         }
 
         IObjectOrLink collection = new Collection()
@@ -181,7 +154,7 @@ public static class UsersApi
     {
         if (userId is not "bot")
         {
-            return TypedResults.BadRequest("User was not 'bot'.");
+            return TypedResults.BadRequest("User was not 'bot'");
         }
 
         IObjectOrLink collection = new Collection()
