@@ -121,7 +121,7 @@ public static class UsersApi
                     return TypedResults.BadRequest("The Actor was not a Link or did not have a id.");
                 }
 
-                if (dbContext.FollowRelations.Find(followerId, userId) is null)
+                if (dbContext.FollowRelations.Find(followerId, userId) is not null)
                 {
                     return TypedResults.Accepted("Accepted as the Actor already followed the Object.");
                 }
@@ -167,12 +167,15 @@ public static class UsersApi
             return TypedResults.BadRequest("User was not 'bot'.");
         }
 
+        var relations = dbContext.FollowRelations.Where(f => f.FollowedId == $"{configuration["HostUrls:Server"]}/Users/{userId}").ToList();
+
         IObjectOrLink collection = new Collection()
         {
             JsonLDContext = new List<ReferenceTermDefinition>() { new(new("https://www.w3.org/ns/activitystreams")) },
             Id = $"{configuration["HostUrls:Server"]}/Users/{userId}/followers",
             Type = new List<string>() { "Collection" },
-            Items = dbContext.FollowRelations.Where(f => f.FollowedId == $"{configuration["HostUrls:Server"]}/Users/{userId}").Select(f => new Link() { Href = new(f.FollowerId) }).ToList()
+            Items = relations.Select(f => new Link() { Href = new(f.FollowerId) }).ToList(),
+            TotalItems = (uint)relations.Count()
         };
         return TypedResults.Ok(collection);
     }
@@ -184,12 +187,15 @@ public static class UsersApi
             return TypedResults.BadRequest("User was not 'bot'.");
         }
 
+        var relations = dbContext.FollowRelations.Where(f => f.FollowerId == $"{configuration["HostUrls:Server"]}/Users/{userId}").ToList();
+
         IObjectOrLink collection = new Collection()
         {
             JsonLDContext = new List<ReferenceTermDefinition>() { new(new("https://www.w3.org/ns/activitystreams")) },
             Id = $"{configuration["HostUrls:Server"]}/Users/{userId}/following",
             Type = new List<string>() { "Collection" },
-            Items = dbContext.FollowRelations.Where(f => f.FollowerId == $"{configuration["HostUrls:Server"]}/Users/{userId}").Select(f => new Link() { Href = new(f.FollowedId) }).ToList()
+            Items = relations.Select(f => new Link() { Href = new(f.FollowedId) }).ToList(),
+            TotalItems = (uint)relations.Count()
         };
         return TypedResults.Ok(collection);
     }
