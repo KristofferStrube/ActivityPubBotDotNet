@@ -1,4 +1,5 @@
-﻿using KristofferStrube.ActivityStreams;
+﻿using KristofferStrube.ActivityPubBotDotNet.Server.Services;
+using KristofferStrube.ActivityStreams;
 using KristofferStrube.ActivityStreams.JsonLD;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ public static class UsersApi
 
         group.MapGet("/{userId}", Index);
         group.MapPost("/{userId}/inbox", Inbox);
+        group.MapGet("/{userId}/outbox", Outbox);
         group.MapGet("/{userId}/followers", Followers);
         group.MapGet("/{userId}/following", Following);
 
@@ -23,11 +25,6 @@ public static class UsersApi
 
     public static Results<BadRequest<string>, Ok<IObject>> Index(string userId, IConfiguration configuration, ActivityPubDbContext dbContext)
     {
-        if (userId is not "bot")
-        {
-            return TypedResults.BadRequest("User was not 'bot'.");
-        }
-
         UserInfo? user = dbContext.Users.Find($"{configuration["HostUrls:Server"]}/Users/{userId}");
         if (user is null)
         {
@@ -48,13 +45,15 @@ public static class UsersApi
             Icon = new List<Image> {
                     new() {
                         Url = new Link[] { new() { Href = new("https://kristoffer-strube.dk/bot.png") } },
-                        MediaType = "image/png"
+                        MediaType = "image/png",
+                        Type = new List<string>() { "Image" }
                     }
                 },
             Image = new List<Image> {
                     new() {
                         Url = new Link[] { new() { Href = new("https://kristoffer-strube.dk/bot_header.PNG") } },
-                        MediaType = "image/png"
+                        MediaType = "image/png",
+                        Type = new List<string>() { "Image" }
                     }
                 },
             Summary = new string[] { "This is a ActivityPub bot written in .NET." },
@@ -77,9 +76,10 @@ public static class UsersApi
 
     public static async Task<Results<BadRequest<string>, Accepted>> Inbox(string userId, [FromBody] IObject obj, IConfiguration configuration, ActivityPubDbContext dbContext, ActivityPubService activityPub)
     {
-        if (userId is not "bot")
+        UserInfo? user = dbContext.Users.Find($"{configuration["HostUrls:Server"]}/Users/{userId}");
+        if (user is null)
         {
-            return TypedResults.BadRequest("User was not 'bot'.");
+            return TypedResults.BadRequest("User could not be found.");
         }
 
         switch (obj)
@@ -160,11 +160,45 @@ public static class UsersApi
         }
     }
 
+    public static Results<BadRequest<string>, Ok<IObjectOrLink>> Outbox(string userId, IConfiguration configuration, ActivityPubDbContext dbContext, IOutboxService outboxService)
+    {
+        UserInfo? user = dbContext.Users.Find($"{configuration["HostUrls:Server"]}/Users/{userId}");
+        if (user is null)
+        {
+            return TypedResults.BadRequest("User could not be found.");
+        }
+
+        if (!outboxService.HasOutboxFor(userId))
+        {
+            return TypedResults.BadRequest("Did not have data for outbox of User.");
+        }
+
+        var profileResult = Index(userId, configuration, dbContext).Result;
+        if (profileResult is not Ok<IObject> { } okResult || okResult.Value is not Person { } profile)
+        {
+            return (BadRequest<string>)profileResult;
+        }
+
+        var outBoxItems = outboxService.GetOutboxItems(userId, profile).ToList();
+
+        IObjectOrLink collection = new OrderedCollection()
+        {
+            JsonLDContext = new List<ReferenceTermDefinition>() { new(new("https://www.w3.org/ns/activitystreams")) },
+            Id = $"{configuration["HostUrls:Server"]}/Users/{userId}/outbox",
+            Type = new List<string>() { "OrderedCollection" },
+            Items = outBoxItems,
+            TotalItems = (uint)outBoxItems.Count()
+        };
+
+        return TypedResults.Ok(collection);
+    }
+
     public static Results<BadRequest<string>, Ok<IObjectOrLink>> Followers(string userId, IConfiguration configuration, ActivityPubDbContext dbContext)
     {
-        if (userId is not "bot")
+        UserInfo? user = dbContext.Users.Find($"{configuration["HostUrls:Server"]}/Users/{userId}");
+        if (user is null)
         {
-            return TypedResults.BadRequest("User was not 'bot'.");
+            return TypedResults.BadRequest("User could not be found.");
         }
 
         var relations = dbContext.FollowRelations.Where(f => f.FollowedId == $"{configuration["HostUrls:Server"]}/Users/{userId}").ToList();
@@ -182,9 +216,10 @@ public static class UsersApi
 
     public static Results<BadRequest<string>, Ok<IObjectOrLink>> Following(string userId, IConfiguration configuration, ActivityPubDbContext dbContext)
     {
-        if (userId is not "bot")
+        UserInfo? user = dbContext.Users.Find($"{configuration["HostUrls:Server"]}/Users/{userId}");
+        if (user is null)
         {
-            return TypedResults.BadRequest("User was not 'bot'.");
+            return TypedResults.BadRequest("User could not be found.");
         }
 
         var relations = dbContext.FollowRelations.Where(f => f.FollowerId == $"{configuration["HostUrls:Server"]}/Users/{userId}").ToList();

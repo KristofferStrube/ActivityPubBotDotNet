@@ -10,6 +10,8 @@ Try to say *"AcitivityPub Bot Dot Net"* fast three times.
 
 It is build using Minimal API and EF Core with SQLite. It uses the [KristofferStrube.ActivityStreams](https://www.nuget.org/packages/KristofferStrube.ActivityStreams) NuGet package for strongly typed classes for parsing the payload of endpoints and to send messages to other servers.
 
+You can see it in action at [https://kristoffer-strube.dk/API/ActivityPub/Users/bot](https://kristoffer-strube.dk/API/ActivityPub/Users/bot) where the bot serves my blog posts from [kristoffer-strube.dk](https://kristoffer-strube.dk) in its [Outbox](https://www.w3.org/TR/activitypub/#outbox) using the `RSSFeedOutboxService`.
+
 It is build with inspiration from David Fowler's project [TodoApi](https://github.com/davidfowl/TodoApi).
 
 # Local Development
@@ -41,13 +43,14 @@ dotnet run
 - [ ] Validate message [signing](https://blog.joinmastodon.org/2018/07/how-to-make-friends-and-verify-requests/).
 - [x] Dynamic information of [Person](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-person).
 - [x] Dynamic WebFinger endpoint.
-- [ ] Serve [Articles](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-article) of [Person](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-person).
+- [x] Serve [Articles](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-article) of [Person](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-person) from RSS feed.
+- [x] Serve [Notes](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-note) of [Person](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-person) from administrative tool.
 - [ ] Send [Create](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-create) Activity message when a new Article is created.
 - [ ] Send [Delete](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-delete) Activity message when [Person](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-person) information changes.
 ## Administration Goals
 - [ ] Be able to authenticate the admin somehow.
 - [ ] Be able to update a [Person](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-person) information.
-- [ ] Be able to create new [Articles](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-article)
+- [ ] Be able to create new [Notes](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-note)
 - [ ] Be able to delete a [Person](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-person).
 ## Client Goals
 - [ ] Show [Person](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-person) information if someone hits the API and doesn't request valid `content-type`.

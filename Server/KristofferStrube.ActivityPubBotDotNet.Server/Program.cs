@@ -10,6 +10,7 @@ builder.Services.AddSwaggerGen();
 // Add ActivityPubService
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<ActivityPubService>();
+builder.Services.AddScoped<IOutboxService>(_ => new RSSFeedOutboxService("https://kristoffer-strube.dk/RSS.xml", "bot", builder.Configuration));
 
 // Configure the database
 string connectionString = builder.Configuration.GetConnectionString("Todos") ?? "Data Source=.db/Todos.db";
