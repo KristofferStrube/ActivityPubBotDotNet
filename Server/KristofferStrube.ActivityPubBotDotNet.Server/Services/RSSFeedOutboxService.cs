@@ -20,7 +20,7 @@ public class RSSFeedOutboxService : IOutboxService
 
     public bool HasOutboxFor(string userId) => this.userId == userId;
 
-    public IEnumerable<IObjectOrLink> GetOutboxItems(string userId, Person person)
+    public IEnumerable<IObjectOrLink> GetOutboxItems(string userId)
     {
         XmlReader reader = XmlReader.Create(rssFeedUrl);
         SyndicationFeed feed = SyndicationFeed.Load(reader);
@@ -38,10 +38,16 @@ public class RSSFeedOutboxService : IOutboxService
                     JsonLDContext = new List<ReferenceTermDefinition>() { new(new("https://www.w3.org/ns/activitystreams")) },
                     Id = $"{configuration["HostUrls:Server"]}/Users/{userId}/outbox/{item.Id}",
                     Type = new List<string>() { "Article" },
-                    Content = new List<string>() { $"<h1>{item.Title.Text}</h1>" + item.Summary.Text + "\n" + (item.Content is TextSyndicationContent { } content ? content.Text : string.Empty) },
+                    Content = new List<string>() {
+                        $"""
+                           <h1>{item.Title.Text}</h1>
+                           {item.Summary.Text}
+                           {(item.Content is TextSyndicationContent { } content ? content.Text : string.Empty)}
+                        """
+                    },
                     Published = item.PublishDate.DateTime,
                     To = new List<Link> { new() { Href = new("https://www.w3.org/ns/activitystreams#Public") } },
-                    AttributedTo = new List<IObject>() { person }
+                    AttributedTo = new List<Link>() { new Link() { Href = new($"{configuration["HostUrls:Server"]}/Users/{userId}") } }
                 }
             }
         });

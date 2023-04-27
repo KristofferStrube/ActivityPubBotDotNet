@@ -1,5 +1,4 @@
-﻿using KristofferStrube.ActivityPubBotDotNet.Server.Services;
-using KristofferStrube.ActivityStreams;
+﻿using KristofferStrube.ActivityStreams;
 using KristofferStrube.ActivityStreams.JsonLD;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -173,13 +172,7 @@ public static class UsersApi
             return TypedResults.BadRequest("Did not have data for outbox of User.");
         }
 
-        var profileResult = Index(userId, configuration, dbContext).Result;
-        if (profileResult is not Ok<IObject> { } okResult || okResult.Value is not Person { } profile)
-        {
-            return (BadRequest<string>)profileResult;
-        }
-
-        var outBoxItems = outboxService.GetOutboxItems(userId, profile).ToList();
+        var outBoxItems = outboxService.GetOutboxItems(userId).ToList();
 
         IObjectOrLink collection = new OrderedCollection()
         {
