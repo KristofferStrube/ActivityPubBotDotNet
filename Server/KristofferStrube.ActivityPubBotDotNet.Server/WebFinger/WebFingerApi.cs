@@ -31,10 +31,6 @@ public static class WebFingerApi
         }
 
         string userId = resource.Split(":")[1].Split("@")[0];
-        if (userId is not "bot")
-        {
-            return TypedResults.BadRequest("User was not 'bot'.");
-        }
 
         UserInfo? user = dbContext.Users.Find($"{configuration["HostUrls:Server"]}/Users/{userId}");
         if (user is null)

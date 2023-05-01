@@ -27,17 +27,13 @@ public class RSSFeedOutboxService : IOutboxService
         reader.Close();
         return feed.Items.Select(item => new Create()
         {
-            JsonLDContext = new List<ReferenceTermDefinition>() { new(new("https://www.w3.org/ns/activitystreams")) },
             Id = $"{configuration["HostUrls:Server"]}/Users/{userId}/outbox/{item.Id}/activity",
-            Type = new List<string>() { "Create" },
             To = new List<Link> { new() { Href = new("https://www.w3.org/ns/activitystreams#Public") } },
             Object = new List<IObject>
             {
                 new Article()
                 {
-                    JsonLDContext = new List<ReferenceTermDefinition>() { new(new("https://www.w3.org/ns/activitystreams")) },
                     Id = $"{configuration["HostUrls:Server"]}/Users/{userId}/outbox/{item.Id}",
-                    Type = new List<string>() { "Article" },
                     Content = new List<string>() {
                         $"""
                            <h1>{item.Title.Text}</h1>

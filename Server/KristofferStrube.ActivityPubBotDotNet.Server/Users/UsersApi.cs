@@ -32,9 +32,7 @@ public static class UsersApi
 
         return TypedResults.Ok((IObject)new Person()
         {
-            JsonLDContext = new List<ReferenceTermDefinition>() { new(new("https://www.w3.org/ns/activitystreams")) },
             Id = $"{configuration["HostUrls:Server"]}/Users/{userId}",
-            Type = new List<string>() { "Person" },
             PreferredUsername = user.Name,
             Inbox = new Link() { Href = new Uri($"{configuration["HostUrls:Server"]}/Users/{userId}/inbox") },
             Outbox = new Link() { Href = new Uri($"{configuration["HostUrls:Server"]}/Users/{userId}/outbox") },
@@ -45,14 +43,12 @@ public static class UsersApi
                     new() {
                         Url = new Link[] { new() { Href = new("https://kristoffer-strube.dk/bot.png") } },
                         MediaType = "image/png",
-                        Type = new List<string>() { "Image" }
                     }
                 },
             Image = new List<Image> {
                     new() {
                         Url = new Link[] { new() { Href = new("https://kristoffer-strube.dk/bot_header.PNG") } },
                         MediaType = "image/png",
-                        Type = new List<string>() { "Image" }
                     }
                 },
             Summary = new string[] { "This is a ActivityPub bot written in .NET." },
@@ -104,7 +100,6 @@ public static class UsersApi
 
                 Accept accept = new Accept()
                 {
-                    JsonLDContext = new List<ReferenceTermDefinition>() { new(new("https://www.w3.org/ns/activitystreams")) },
                     Actor = new List<Link>() { new() { Href = new($"{configuration["HostUrls:Server"]}/Users/{userId}") } },
                     Id = $"{configuration["HostUrls:Server"]}/Activity/{Guid.NewGuid()}",
                     Object = new List<IObject>() { follow }
@@ -176,9 +171,7 @@ public static class UsersApi
 
         IObjectOrLink collection = new OrderedCollection()
         {
-            JsonLDContext = new List<ReferenceTermDefinition>() { new(new("https://www.w3.org/ns/activitystreams")) },
             Id = $"{configuration["HostUrls:Server"]}/Users/{userId}/outbox",
-            Type = new List<string>() { "OrderedCollection" },
             Items = outBoxItems,
             TotalItems = (uint)outBoxItems.Count()
         };
@@ -198,9 +191,7 @@ public static class UsersApi
 
         IObjectOrLink collection = new Collection()
         {
-            JsonLDContext = new List<ReferenceTermDefinition>() { new(new("https://www.w3.org/ns/activitystreams")) },
             Id = $"{configuration["HostUrls:Server"]}/Users/{userId}/followers",
-            Type = new List<string>() { "Collection" },
             Items = relations.Select(f => new Link() { Href = new(f.FollowerId) }).ToList(),
             TotalItems = (uint)relations.Count()
         };
@@ -219,9 +210,7 @@ public static class UsersApi
 
         IObjectOrLink collection = new Collection()
         {
-            JsonLDContext = new List<ReferenceTermDefinition>() { new(new("https://www.w3.org/ns/activitystreams")) },
             Id = $"{configuration["HostUrls:Server"]}/Users/{userId}/following",
-            Type = new List<string>() { "Collection" },
             Items = relations.Select(f => new Link() { Href = new(f.FollowedId) }).ToList(),
             TotalItems = (uint)relations.Count()
         };
